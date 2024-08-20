@@ -30,10 +30,10 @@ def login(
         User.username == user_credentials.username).first()
     if not user:
         raise NewHTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail='Invalid credentials')
+                               detail='Invalid credentials')
     if not verify(user_credentials.password, user.password):
         raise NewHTTPException(status_code=status.HTTP_403_FORBIDDEN,
-                            detail='Invalid Credentials')
+                               detail='Invalid Credentials')
     # create token
     payload_data = {'id': user.id}
     access_token = access_security.create_access_token(subject=payload_data)
@@ -43,11 +43,6 @@ def login(
         'token_type': 'bearer',
         'refresh_token': refresh_token,
     }
-
-
-@auth_router.get('/current', response_model=UserInResponse)
-def get_curr_user(current_user: User = Depends(get_current_user)):
-    return current_user
 
 
 @auth_router.post('/refresh', response_model=Token)
