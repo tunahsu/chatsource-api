@@ -14,6 +14,7 @@ sys.path.append(path)
 from db import Base, engine
 from routers.auth import auth_router
 from routers.users import user_router
+from routers.chatbots import chatbot_router
 from exception import NewHTTPException
 
 Base.metadata.create_all(bind=engine)
@@ -21,6 +22,7 @@ Base.metadata.create_all(bind=engine)
 api_router = APIRouter(prefix='/api/v1')
 api_router.include_router(auth_router)
 api_router.include_router(user_router)
+api_router.include_router(chatbot_router)
 
 app = FastAPI(openapi_url=settings.OPENAPI_URL)
 app.include_router(api_router)

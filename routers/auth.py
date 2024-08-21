@@ -5,8 +5,8 @@ from passlib.context import CryptContext
 
 from db import get_db
 from models import User
-from oauth2 import access_security, get_current_user, refresh_tokens, refresh_security
-from schemas.users import Token, UserInResponse
+from oauth2 import access_security, refresh_tokens, refresh_security
+from schemas.users import Token
 from exception import NewHTTPException
 
 auth_router = APIRouter(prefix='/auth', tags=['Auth'])

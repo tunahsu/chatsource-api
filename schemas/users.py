@@ -2,6 +2,12 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class BaseDBModel(BaseModel):
+
+    class Config:
+        from_attributes = True
+
+
 class BaseResponseModel(BaseModel):
     id: int
 
@@ -10,26 +16,20 @@ class BaseResponseModel(BaseModel):
         from_orm = True
 
 
-class BaseInDBModel(BaseModel):
-
-    class Config:
-        from_attributes = True
-
-
-class UserInDB(BaseInDBModel):
+class UserCreate(BaseDBModel):
     username: str
     password: str
     name: str
 
 
-class UserInResponse(BaseResponseModel):
-    username: str
+class UserUpdate(BaseDBModel):
+    password: str
     name: str
 
 
-class UserInLogin(BaseModel):
+class UserResponse(BaseResponseModel):
     username: str
-    password: str
+    name: str
 
 
 class Token(BaseModel):
