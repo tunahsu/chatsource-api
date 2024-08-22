@@ -3,6 +3,7 @@ import sys
 import uvicorn
 
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from config import settings
 
@@ -27,6 +28,14 @@ api_router.include_router(chatbot_router)
 app = FastAPI(openapi_url=settings.OPENAPI_URL)
 app.include_router(api_router)
 
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=['*'],
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 # Unexpected error
 @app.middleware('http')

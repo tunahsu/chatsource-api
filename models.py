@@ -37,6 +37,7 @@ class Chatbot(Base, DateMixins):
     chatbot_id = Column(String, unique=True, index=True)
     chatbot_name = Column(String, nullable=False)
     llm_name = Column(String, nullable=False)
+    llm_api_key = Column(String, nullable=False)
     temperature = Column(Float, nullable=False)
     instructions = Column(Text, nullable=False, default='')
     is_active = Column(Boolean, nullable=False, default=True)
