@@ -37,6 +37,7 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
+
 # Unexpected error
 @app.middleware('http')
 async def get_request(request: Request, call_next):

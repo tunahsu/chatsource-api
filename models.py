@@ -7,7 +7,8 @@ from sqlalchemy.sql import func
 from db import Base
 
 
-class DateMixins(object):
+class DefaultMixin(object):
+    is_active = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP(timezone=True),
                         server_default=text('CURRENT_TIMESTAMP'))
     updated_at = Column(TIMESTAMP(timezone=True),
@@ -15,14 +16,14 @@ class DateMixins(object):
                         onupdate=func.now())
 
 
-class User(Base, DateMixins):
+class User(Base, DefaultMixin):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True, index=True)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
+    
 
     # Establishing the one-to-many relationship
     chatbots = relationship('Chatbot',
@@ -30,7 +31,7 @@ class User(Base, DateMixins):
                             cascade='all, delete-orphan')
 
 
-class Chatbot(Base, DateMixins):
+class Chatbot(Base, DefaultMixin):
     __tablename__ = 'chatbots'
 
     id = Column(Integer, primary_key=True, index=True)
@@ -40,7 +41,6 @@ class Chatbot(Base, DateMixins):
     llm_api_key = Column(String, nullable=False)
     temperature = Column(Float, nullable=False)
     instructions = Column(Text, nullable=False, default='')
-    is_active = Column(Boolean, nullable=False, default=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     # Establishing the many-to-one relationship

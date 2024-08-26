@@ -23,8 +23,9 @@ class UserCreate(BaseDBModel):
 
 
 class UserUpdate(BaseDBModel):
-    password: str
-    name: str
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+    name: Optional[str] = None
 
 
 class UserResponse(BaseResponseModel):
