@@ -1,8 +1,7 @@
 fastapi[standard]==0.112.0
-fastapi-jwt[authlib]==0.3.0
+fastapi-users[sqlalchemy]==13.0.0
 passlib==1.7.4
 bcrypt==4.0.1
-SQLAlchemy==2.0.32
 alembic==1.13.2
 pydantic-settings==2.4.0
 google-generativeai==0.7.2
