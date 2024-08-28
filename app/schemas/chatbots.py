@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 
 
@@ -8,7 +9,7 @@ class BaseDBModel(BaseModel):
 
 
 class BaseResponseModel(BaseModel):
-    id: int
+    id: uuid.UUID
 
     class Config:
         from_attributes = True
@@ -16,34 +17,33 @@ class BaseResponseModel(BaseModel):
 
 
 class ChatbotCreate(BaseDBModel):
-    chatbot_name: str
-    llm_name: str
-    llm_api_key: str
+    name: str
+    llm: str
+    api_key: str
     temperature: float
-    instructions: str
+    instruction: str
 
 
 class ChatbotUpdate(BaseDBModel):
-    chatbot_name: str
-    llm_name: str
-    llm_api_key: str
+    name: str
+    llm: str
+    api_key: str
     temperature: float
-    instructions: str
+    instruction: str
 
 
 class ChatbotRequest(BaseDBModel):
-    chatbot_name: str
-    llm_name: str
-    llm_api_key: str
+    name: str
+    llm: str
+    api_key: str
     temperature: float
-    instructions: str
+    instruction: str
     query: str
 
 
 class ChatbotResponse(BaseResponseModel):
-    chatbot_id: str
-    chatbot_name: str
-    llm_name: str
-    llm_api_key: str
+    name: str
+    llm: str
+    api_key: str
     temperature: float
-    instructions: str
+    instruction: str
