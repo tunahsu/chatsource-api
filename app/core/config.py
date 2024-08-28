@@ -8,9 +8,6 @@ class Settings(BaseSettings):
     RELOAD: bool = False
     OPENAPI_URL: Optional[str] = None
     DB_URL: str = 'sqlite:///./sqlite.db'
-    SECRET_KEY: str = 'secret_key'
-    ALGORITHM: str = 'HS256'
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
     GOOGLE_REDIRECT_URI: str
