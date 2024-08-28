@@ -7,6 +7,7 @@ from app.core.users import (
     fastapi_users,
     google_oauth_client,
 )
+from app.core.config import settings
 
 user_router = APIRouter(prefix='/users')
 
@@ -26,6 +27,6 @@ user_router.include_router(fastapi_users.get_auth_router(auth_backend),
                            prefix='/auth/jwt',
                            tags=['Auth'])
 user_router.include_router(fastapi_users.get_oauth_router(
-    google_oauth_client, auth_backend, SECRET),
+    google_oauth_client, auth_backend, SECRET, settings.GOOGLE_REDIRECT_URI),
                            prefix='/auth/google',
                            tags=['Auth'])
