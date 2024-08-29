@@ -1,68 +1,42 @@
-from fastapi import FastAPI, BackgroundTasks
-from starlette.responses import JSONResponse
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from fastapi_mail import FastMail, ConnectionConfig
 from pydantic import EmailStr, BaseModel
 from typing import List
 
+from app.core.config import settings
+
+
 class EmailSchema(BaseModel):
-    email: List[EmailStr]
+    email_list: List[EmailStr]
 
 
-conf = ConnectionConfig(
-    MAIL_USERNAME = "lucious.carroll@ethereal.email",
-    MAIL_PASSWORD = "tJXEr2sW7dz28PwbsK",
-    MAIL_FROM = "test@email.com",
-    MAIL_PORT = 587,
-    MAIL_SERVER = "smtp.ethereal.email",
-    MAIL_FROM_NAME="Desired Name",
-    MAIL_STARTTLS = True,
-    MAIL_SSL_TLS = False,
-    USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
-)
+conf = ConnectionConfig(MAIL_USERNAME=settings.MAIL_USERNAME,
+                        MAIL_PASSWORD=settings.MAIL_PASSWORD,
+                        MAIL_FROM=settings.MAIL_FROM,
+                        MAIL_PORT=settings.MAIL_PORT,
+                        MAIL_SERVER=settings.MAIL_SERVER,
+                        MAIL_FROM_NAME=settings.MAIL_FROM_NAME,
+                        MAIL_STARTTLS=True,
+                        MAIL_SSL_TLS=False,
+                        USE_CREDENTIALS=True,
+                        VALIDATE_CERTS=True)
 
-conf_google = ConnectionConfig(
-    MAIL_USERNAME = "n26112445@gs.ncku.edu.tw",
-    MAIL_PASSWORD = "",# 16tokens
-    MAIL_FROM = "n26112445@gs.ncku.edu.tw",
-    MAIL_PORT = 587,
-    MAIL_SERVER = "smtp.gmail.com",
-    MAIL_FROM_NAME="Desired Name",
-    MAIL_STARTTLS = True,
-    MAIL_SSL_TLS = False,
-    USE_CREDENTIALS = True,
-    VALIDATE_CERTS = True
-)
+fm = FastMail(conf)
 
-
-
-async def simple_send(email: EmailSchema) -> JSONResponse:
-    html = """<p>Hi this test mail, thanks for using Fastapi-mail</p> """
-    print(email.dict().get("email"))
-    message = MessageSchema(
-        subject="Fastapi-Mail module",
-        recipients=email.dict().get("email"),
-        body=html,
-        subtype=MessageType.html)
-
-    fm = FastMail(conf_google)
-    await fm.send_message(message)
-    return JSONResponse(status_code=200, content={"message": "email has been sent"})
-
-
-async def send_in_background(
-    background_tasks: BackgroundTasks,
-    email: EmailSchema
-    ) -> JSONResponse:
-
-    message = MessageSchema(
-        subject="Fastapi mail module",
-        recipients=email.dict().get("email"),
-        body="Simple background task",
-        subtype=MessageType.plain)
-
-    fm = FastMail(conf)
-
-    background_tasks.add_task(fm.send_message,message)
-
-    return JSONResponse(status_code=200, content={"message": "email has been sent"})
+forgot_passwor_template = """
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+        <h2 style="text-align: center; color: #333;">Reset Your Password</h2>
+        <p style="color: #555;">Hello,</p>
+        <p style="color: #555;">We received a request to reset your password. Please click the button below to reset it:</p>
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="http://localhost:4200/dashboard?access_token={}" style="background-color: #007BFF; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                Reset Password
+            </a>
+        </div>
+        <p style="color: #555;">If you did not request this, please ignore this email.</p>
+        <p style="color: #555;">Thank you!</p>
+        <hr style="border: none; border-top: 1px solid #e0e0e0;">
+        <p style="text-align: center; color: #999; font-size: 12px;">
+            &copy; 2024 Chatsource. All rights reserved.
+        </p>
+    </div>
+"""

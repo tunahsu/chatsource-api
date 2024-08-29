@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(openapi_url=settings.OPENAPI_URL, lifespan=lifespan)
+app = FastAPI(openapi_url=settings.APP_OPENAPI_URL, lifespan=lifespan)
 
 # Routers
 api_router = APIRouter(prefix='/api/v1')
@@ -71,5 +71,5 @@ async def exception_handler(request: Request, exc: NewHTTPException):
 if __name__ == '__main__':
     uvicorn.run('main:app',
                 host='0.0.0.0',
-                port=settings.PORT,
-                reload=settings.RELOAD)
+                port=settings.APP_PORT,
+                reload=settings.APP_RELOAD)

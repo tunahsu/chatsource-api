@@ -27,6 +27,7 @@ user_router.include_router(fastapi_users.get_auth_router(auth_backend),
                            prefix='/auth/jwt',
                            tags=['Auth'])
 user_router.include_router(fastapi_users.get_oauth_router(
-    google_oauth_client, auth_backend, SECRET, settings.GOOGLE_REDIRECT_URI),
+    google_oauth_client, auth_backend, SECRET,
+    settings.OAUTH_GOOGLE_REDIRECT_URI),
                            prefix='/auth/google',
                            tags=['Auth'])

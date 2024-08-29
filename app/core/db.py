@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
 
 from app.models import User, OAuthAccount
 
-engine = create_async_engine(settings.DB_URL)
+engine = create_async_engine(settings.APP_DB_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

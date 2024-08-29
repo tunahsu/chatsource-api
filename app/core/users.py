@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Request, BackgroundTasks
+from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -9,18 +9,19 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_mail import MessageSchema, MessageType
 from httpx_oauth.clients.google import GoogleOAuth2
+from starlette.responses import JSONResponse
 
 from app.core.db import User, get_user_db
 from app.core.config import settings
-from app.core.mailer import simple_send, send_in_background, EmailSchema
-from starlette.responses import JSONResponse
+from app.core.mailer import EmailSchema, fm, forgot_passwor_template
 
-SECRET = "SECRET"
+SECRET = settings.APP_SECRET
 
 google_oauth_client = GoogleOAuth2(
-    settings.GOOGLE_CLIENT_ID,
-    settings.GOOGLE_CLIENT_SECRET,
+    settings.OAUTH_GOOGLE_CLIENT_ID,
+    settings.OAUTH_GOOGLE_CLIENT_SECRET,
 )
 
 
@@ -31,26 +32,27 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_register(self,
                                 user: User,
                                 request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+        print(f'User {user.id} has registered.')
 
     async def on_after_forgot_password(self,
                                        user: User,
                                        token: str,
                                        request: Optional[Request] = None):
-        print(
-            f"User {user.id} has forgot their password. Reset token: {token}")
-        #res = await request.json()
-        test_email = EmailSchema(email=[user.email])
-        await simple_send(test_email)
-        return JSONResponse(status_code=200, content={"message": "email has been sent"})
-        
+
+        message = MessageSchema(subject='Forgot Password',
+                                recipients=[user.email],
+                                body=forgot_passwor_template.format(token),
+                                subtype=MessageType.html)
+        await fm.send_message(message)
+        return JSONResponse(status_code=200,
+                            content={'message': 'Email has been sent'})
 
     async def on_after_request_verify(self,
                                       user: User,
                                       token: str,
                                       request: Optional[Request] = None):
         print(
-            f"Verification requested for user {user.id}. Verification token: {token}"
+            f'Verification requested for user {user.id}. Verification token: {token}'
         )
 
 
@@ -59,7 +61,7 @@ async def get_user_manager(
     yield UserManager(user_db)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -67,7 +69,7 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 auth_backend = AuthenticationBackend(
-    name="jwt",
+    name='jwt',
     transport=bearer_transport,
     get_strategy=get_jwt_strategy,
 )
