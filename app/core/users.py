@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, BackgroundTasks
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -13,6 +13,8 @@ from httpx_oauth.clients.google import GoogleOAuth2
 
 from app.core.db import User, get_user_db
 from app.core.config import settings
+from app.core.mailer import simple_send, send_in_background, EmailSchema
+from starlette.responses import JSONResponse
 
 SECRET = "SECRET"
 
@@ -37,6 +39,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
                                        request: Optional[Request] = None):
         print(
             f"User {user.id} has forgot their password. Reset token: {token}")
+        #res = await request.json()
+        test_email = EmailSchema(email=[user.email])
+        await simple_send(test_email)
+        return JSONResponse(status_code=200, content={"message": "email has been sent"})
+        
 
     async def on_after_request_verify(self,
                                       user: User,
