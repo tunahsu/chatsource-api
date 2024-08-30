@@ -62,6 +62,7 @@ class AutoRedirectCookieTransport(CookieTransport):
         response = RedirectResponse(
             f'{settings.APP_FRONTEND_URL}/dashboard',
             status_code=302)
+        print(token)
         return self._set_login_cookie(response, token)
 
 

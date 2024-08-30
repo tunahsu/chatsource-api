@@ -32,18 +32,14 @@ class ChatbotUpdate(BaseDBModel):
     instruction: str
 
 
-class ChatbotRequest(BaseDBModel):
-    name: str
-    llm: str
-    api_key: str
-    temperature: float
-    instruction: str
-    query: str
-
-
 class ChatbotResponse(BaseResponseModel):
     name: str
     llm: str
     api_key: str
     temperature: float
     instruction: str
+
+
+class ChatbotQuery(BaseDBModel):
+    id: uuid.UUID
+    content: str
