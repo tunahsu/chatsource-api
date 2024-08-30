@@ -1,17 +1,17 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Request
+from fastapi import Depends, Response, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
-    BearerTransport,
+    CookieTransport,
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_mail import MessageSchema, MessageType
 from httpx_oauth.clients.google import GoogleOAuth2
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from app.core.db import User, get_user_db
 from app.core.config import settings
@@ -56,12 +56,20 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         )
 
 
+class AutoRedirectCookieTransport(CookieTransport):
+
+    async def get_login_response(self, token: str) -> Response:
+        response = RedirectResponse(
+            settings.OAUTH_GOOGLE_FRONTEND_REDIRECT_URI, status_code=302)
+        return self._set_login_cookie(response, token)
+
+
 async def get_user_manager(
         user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
 
-bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
+cookie_transport = AutoRedirectCookieTransport(cookie_max_age=3600)
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -69,8 +77,8 @@ def get_jwt_strategy() -> JWTStrategy:
 
 
 auth_backend = AuthenticationBackend(
-    name='jwt',
-    transport=bearer_transport,
+    name='cookie',
+    transport=cookie_transport,
     get_strategy=get_jwt_strategy,
 )
 
