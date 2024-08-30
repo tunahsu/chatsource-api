@@ -28,7 +28,7 @@ forgot_passwor_template = """
         <p style="color: #555;">Hello,</p>
         <p style="color: #555;">We received a request to reset your password. Please click the button below to reset it:</p>
         <div style="text-align: center; margin: 20px 0;">
-            <a href="http://localhost:4200/dashboard?access_token={}" style="background-color: #007BFF; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+            <a href="{}/reset_password?token={}" style="background-color: #007BFF; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;">
                 Reset Password
             </a>
         </div>
