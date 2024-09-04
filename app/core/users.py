@@ -41,7 +41,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
         message = MessageSchema(subject='Forgot Password',
                                 recipients=[user.email],
-                                body=forgot_passwor_template.format(settings.APP_FRONTEND_URL, token),
+                                body=forgot_passwor_template.format(
+                                    settings.APP_FRONTEND_URL, token),
                                 subtype=MessageType.html)
         await fm.send_message(message)
         return JSONResponse(status_code=200,
@@ -60,9 +61,11 @@ class AutoRedirectCookieTransport(CookieTransport):
 
     async def get_login_response(self, token: str) -> Response:
         response = RedirectResponse(
-            f'{settings.APP_FRONTEND_URL}/dashboard',
+            f'{settings.APP_FRONTEND_URL}/api/v1/users/auth/google/authorize',
             status_code=302)
-        print(token)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = '*'
+        response.headers['Access-Control-Allow-Headers'] = '*'
         return self._set_login_cookie(response, token)
 
 
