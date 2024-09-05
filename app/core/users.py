@@ -61,7 +61,7 @@ class AutoRedirectCookieTransport(CookieTransport):
 
     async def get_login_response(self, token: str) -> Response:
         response = RedirectResponse(
-            f'{settings.APP_FRONTEND_URL}/api/v1/users/auth/google/authorize',
+            f'{settings.APP_FRONTEND_URL}/dashboard',
             status_code=302)
         response.headers['Access-Control-Allow-Origin'] = '*'
         response.headers['Access-Control-Allow-Methods'] = '*'
