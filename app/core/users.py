@@ -57,36 +57,20 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         )
 
 
-class AutoRedirectCookieTransport(CookieTransport):
-
-    async def get_login_response(self, token: str) -> Response:
-        response = RedirectResponse(
-            f'{settings.APP_FRONTEND_URL}/dashboard',
-            status_code=302)
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = '*'
-        response.headers['Access-Control-Allow-Headers'] = '*'
-        return self._set_login_cookie(response, token)
-
-
 async def get_user_manager(
         user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
-
-
-cookie_transport = AutoRedirectCookieTransport(cookie_max_age=3600)
 
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
 
 
+cookie_transport = CookieTransport(cookie_max_age=3600)
 auth_backend = AuthenticationBackend(
     name='cookie',
     transport=cookie_transport,
     get_strategy=get_jwt_strategy,
 )
-
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
-
 current_active_user = fastapi_users.current_user(active=True)

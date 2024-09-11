@@ -30,7 +30,7 @@ user_router.include_router(fastapi_users.get_oauth_router(
     google_oauth_client,
     auth_backend,
     SECRET,
-    settings.OAUTH_GOOGLE_BACKEND_REDIRECT_URI,
+    f'{settings.APP_FRONTEND_URL}/oauth-callback',
     associate_by_email=True,
     is_verified_by_default=True),
                            prefix='/auth/google',

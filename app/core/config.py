@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     
     OAUTH_GOOGLE_CLIENT_ID: str
     OAUTH_GOOGLE_CLIENT_SECRET: str
-    OAUTH_GOOGLE_BACKEND_REDIRECT_URI: str
     
     MAIL_USERNAME: str
     MAIL_PASSWORD: str
