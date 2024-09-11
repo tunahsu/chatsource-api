@@ -19,7 +19,6 @@ class BaseResponseModel(BaseModel):
 class ChatbotCreate(BaseDBModel):
     name: str
     llm: str
-    api_key: str
     temperature: float
     instruction: str
 
@@ -27,7 +26,6 @@ class ChatbotCreate(BaseDBModel):
 class ChatbotUpdate(BaseDBModel):
     name: str
     llm: str
-    api_key: str
     temperature: float
     instruction: str
 
@@ -35,7 +33,6 @@ class ChatbotUpdate(BaseDBModel):
 class ChatbotResponse(BaseResponseModel):
     name: str
     llm: str
-    api_key: str
     temperature: float
     instruction: str
 

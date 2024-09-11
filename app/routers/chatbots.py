@@ -10,6 +10,7 @@ from app.models import User, Chatbot
 from app.core.db import get_async_session
 from app.core.users import current_active_user
 from app.core.exception import NewHTTPException
+from app.core.config import settings
 
 chatbot_router = APIRouter(prefix='/chatbots', tags=['Chatbots'])
 
@@ -20,7 +21,6 @@ async def create_chatbot(chatbot: ChatbotCreate,
                          session: AsyncSession = Depends(get_async_session)):
     new_chatbot = Chatbot(name=chatbot.name,
                           llm=chatbot.llm,
-                          api_key=chatbot.api_key,
                           temperature=chatbot.temperature,
                           instruction=chatbot.instruction,
                           user_id=user.id)
@@ -35,7 +35,7 @@ async def get_generative_model(
     chatbot = (await
                session.execute(select(Chatbot).where(Chatbot.id == query.id)
                                )).scalars().first()
-    genai.configure(api_key=chatbot.api_key)
+    genai.configure(api_key=settings.GEMINI_API_KEY)
     model = genai.GenerativeModel(model_name=chatbot.llm,
                                   safety_settings='BLOCK_NONE',
                                   generation_config=genai.GenerationConfig(

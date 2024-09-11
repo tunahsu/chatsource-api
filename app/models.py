@@ -28,7 +28,6 @@ class Chatbot(Base):
     id = Column(UUID, primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     llm = Column(String, nullable=False)
-    api_key = Column(String, nullable=False)
     temperature = Column(Float, nullable=False)
     instruction = Column(Text, nullable=False, default='')
     user_id = Column(UUID, ForeignKey('user.id'), nullable=False)
