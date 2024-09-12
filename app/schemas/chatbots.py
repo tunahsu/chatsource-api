@@ -1,6 +1,8 @@
 import uuid
 from pydantic import BaseModel
 
+from app.schemas.users import UserRead
+
 
 class BaseDBModel(BaseModel):
 
@@ -35,6 +37,7 @@ class ChatbotResponse(BaseResponseModel):
     llm: str
     temperature: float
     instruction: str
+    # members: list
 
 
 class ChatbotQuery(BaseDBModel):

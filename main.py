@@ -45,17 +45,17 @@ app.add_middleware(
 
 
 # Unexpected error
-@app.middleware('http')
-async def get_request(request: Request, call_next):
-    try:
-        response = await call_next(request)
-        return response
-    except Exception as e:
-        print('Error:', e)
-        return JSONResponse(
-            status_code=500,
-            content={'detail': 'Internal Server Error'},
-        )
+# @app.middleware('http')
+# async def get_request(request: Request, call_next):
+#     try:
+#         response = await call_next(request)
+#         return response
+#     except Exception as e:
+#         print('Error:', e)
+#         return JSONResponse(
+#             status_code=500,
+#             content={'detail': 'Internal Server Error'},
+#         )
 
 
 # Expected error
