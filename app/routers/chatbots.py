@@ -4,7 +4,6 @@ import google.generativeai as genai
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.schemas.chatbots import ChatbotCreate, ChatbotResponse, ChatbotQuery
 from app.models import User, Chatbot, UserRole, UserChatbot
@@ -84,4 +83,4 @@ async def get_generated_content(
     query: ChatbotQuery,
     user: User = Depends(current_active_user),
     model: genai.GenerativeModel = Depends(get_generative_model)):
-    return model.generate_content(contents=query.content).text
+    return (await model.generate_content_async(contents=query.content)).text
