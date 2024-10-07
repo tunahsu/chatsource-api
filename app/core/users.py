@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from fastapi import Depends, Response, Request
+from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -11,11 +11,11 @@ from fastapi_users.authentication import (
 from fastapi_users.db import SQLAlchemyUserDatabase
 from fastapi_mail import MessageSchema, MessageType
 from httpx_oauth.clients.google import GoogleOAuth2
-from starlette.responses import JSONResponse, RedirectResponse
+from starlette.responses import JSONResponse
 
 from app.core.db import User, get_user_db
 from app.core.config import settings
-from app.core.mailer import EmailSchema, fm, forgot_passwor_template
+from app.core.mailer import fm, forgot_passwor_template
 
 SECRET = settings.APP_SECRET
 
@@ -45,8 +45,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
                                     settings.APP_FRONTEND_URL, token),
                                 subtype=MessageType.html)
         await fm.send_message(message)
-        return JSONResponse(status_code=200,
-                            content={'message': 'Email has been sent'})
 
     async def on_after_request_verify(self,
                                       user: User,
