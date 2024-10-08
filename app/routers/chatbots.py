@@ -1,16 +1,14 @@
-import uuid
-import google.generativeai as genai
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from llama_index.core.base.base_query_engine import BaseQueryEngine
 
-from app.schemas.chatbots import ChatbotCreate, ChatbotResponse, ChatbotQuery
-from app.models import User, Chatbot, UserRole, UserChatbot
+from app.schemas.chatbots import ChatbotCreateRequest, ChatbotCreateResponse, ChatbotQueryRequest, ChatbotTrainRequest, ChatbotTrainReponse
+from app.models import User, Chatbot, UserRole, UserChatbot, Document
 from app.core.db import get_async_session
 from app.core.users import current_active_user
 from app.core.exception import NewHTTPException
-from app.core.config import settings
+from app.core.rag import get_query_engine
 
 chatbot_router = APIRouter(prefix='/chatbots', tags=['Chatbots'])
 
@@ -26,7 +24,8 @@ async def get_chatbot_list(user: User = Depends(current_active_user),
         user_chatbots = (await session.execute(
             select(UserChatbot).join(User).filter(
                 UserChatbot.chatbot_id == chatbot.id))).scalars().all()
-        chatbot_dict = ChatbotResponse.model_validate(chatbot).model_dump()
+        chatbot_dict = ChatbotCreateResponse.model_validate(
+            chatbot).model_dump()
         chatbot_dict.update({
             'members': [{
                 'id': user_chatbot.user.id,
@@ -39,9 +38,9 @@ async def get_chatbot_list(user: User = Depends(current_active_user),
 
 
 @chatbot_router.post('/create',
-                     status_code=201,
-                     response_model=ChatbotResponse)
-async def create_chatbot(chatbot: ChatbotCreate,
+                     status_code=status.HTTP_201_CREATED,
+                     response_model=ChatbotCreateResponse)
+async def create_chatbot(chatbot: ChatbotCreateRequest,
                          user: User = Depends(current_active_user),
                          session: AsyncSession = Depends(get_async_session)):
     new_chatbot = Chatbot(name=chatbot.name,
@@ -58,29 +57,24 @@ async def create_chatbot(chatbot: ChatbotCreate,
     session.add(user_chatbot)
     await session.commit()
     await session.refresh(user_chatbot)
-    return ChatbotResponse.model_validate(new_chatbot)
+    return ChatbotCreateResponse.model_validate(new_chatbot)
 
 
-async def get_generative_model(
-    query: ChatbotQuery, session: AsyncSession = Depends(get_async_session)):
-    chatbot = (await
-               session.execute(select(Chatbot).where(Chatbot.id == query.id)
-                               )).scalars().first()
-    genai.configure(api_key=settings.GEMINI_API_KEY)
-    model = genai.GenerativeModel(model_name=chatbot.llm,
-                                  safety_settings='BLOCK_NONE',
-                                  generation_config=genai.GenerationConfig(
-                                      temperature=chatbot.temperature),
-                                  system_instruction=chatbot.instruction)
-    try:
-        yield model
-    finally:
-        del model
-
-
-@chatbot_router.post('/query')
+@chatbot_router.post('/query', response_model=str)
 async def get_generated_content(
-    query: ChatbotQuery,
+    query: ChatbotQueryRequest,
     user: User = Depends(current_active_user),
-    model: genai.GenerativeModel = Depends(get_generative_model)):
-    return (await model.generate_content_async(contents=query.content)).text
+    query_engine: BaseQueryEngine = Depends(get_query_engine)):
+
+    return str(await query_engine.aquery(query.content))
+
+
+@chatbot_router.post('/train', status_code=status.HTTP_201_CREATED)
+async def train_from_text(doc: ChatbotTrainRequest,
+                          user: User = Depends(current_active_user),
+                          session: AsyncSession = Depends(get_async_session)):
+    new_doc = Document(**doc.model_dump())
+    session.add(new_doc)
+    await session.commit()
+    await session.refresh(new_doc)
+    return ChatbotTrainReponse.model_validate(new_doc)

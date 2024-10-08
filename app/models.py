@@ -52,3 +52,17 @@ class Chatbot(Base):
     users = relationship('UserChatbot',
                          back_populates='chatbot',
                          cascade='all, delete-orphan')
+    documents = relationship('Document',
+                             back_populates='chatbot',
+                             cascade='all, delete-orphan')
+
+
+class Document(Base):
+    __tablename__ = 'document'
+
+    id = Column(UUID, primary_key=True, default=uuid.uuid4)
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=False)
+
+    chatbot_id = Column(UUID, ForeignKey('chatbot.id'))
+    chatbot = relationship('Chatbot', back_populates='documents')

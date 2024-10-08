@@ -1,10 +1,8 @@
 import uuid
 from pydantic import BaseModel
 
-from app.schemas.users import UserRead
 
-
-class BaseDBModel(BaseModel):
+class BaseRequestDBModel(BaseModel):
 
     class Config:
         from_attributes = True
@@ -18,21 +16,14 @@ class BaseResponseModel(BaseModel):
         from_orm = True
 
 
-class ChatbotCreate(BaseDBModel):
+class ChatbotCreateRequest(BaseRequestDBModel):
     name: str
     llm: str
     temperature: float
     instruction: str
 
 
-class ChatbotUpdate(BaseDBModel):
-    name: str
-    llm: str
-    temperature: float
-    instruction: str
-
-
-class ChatbotResponse(BaseResponseModel):
+class ChatbotCreateResponse(BaseResponseModel):
     name: str
     llm: str
     temperature: float
@@ -40,6 +31,17 @@ class ChatbotResponse(BaseResponseModel):
     # members: list
 
 
-class ChatbotQuery(BaseDBModel):
+class ChatbotQueryRequest(BaseRequestDBModel):
     id: uuid.UUID
+    content: str
+
+
+class ChatbotTrainRequest(BaseRequestDBModel):
+    title: str
+    content: str
+    chatbot_id: uuid.UUID
+
+
+class ChatbotTrainReponse(BaseResponseModel):
+    title: str
     content: str
