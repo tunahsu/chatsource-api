@@ -4,7 +4,7 @@ fastapi-mail==1.4.1
 aiosqlite==0.20.0
 alembic==1.13.2
 pydantic-settings==2.4.0
-google-generativeai==0.7.2
+google-generativeai==0.5.4
 llama-index==0.11.16
 llama-index-llms-gemini==0.3.6
 llama-index-embeddings-huggingface==0.3.1
