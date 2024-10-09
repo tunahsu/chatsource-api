@@ -16,6 +16,7 @@ chatbot_router = APIRouter(prefix='/chatbots', tags=['Chatbots'])
 @chatbot_router.get('/list', response_model=list[dict])
 async def get_chatbot_list(user: User = Depends(current_active_user),
                            session: AsyncSession = Depends(get_async_session)):
+    print('XD')
     chatbots_list = []
     chatbots = (await session.execute(
         select(Chatbot).join(UserChatbot).filter(

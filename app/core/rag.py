@@ -1,5 +1,3 @@
-import os
-
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -9,15 +7,16 @@ from app.models import Chatbot, Document
 from app.core.db import get_async_session
 from app.core.config import settings
 
-os.environ['GOOGLE_API_KEY'] = settings.GEMINI_API_KEY
-from llama_index.llms.gemini import Gemini
+import openai
+from llama_index.llms.openai import OpenAI
+from llama_index.embeddings.openai import OpenAIEmbedding
 from llama_index.core import VectorStoreIndex
-from llama_index.core import Settings, PromptTemplate, Document as LIDocument
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core import Settings, Document as LIDocument
 
-# global
-Settings.embed_model = HuggingFaceEmbedding(
-    model_name='intfloat/multilingual-e5-small')
+openai.api_key = settings.OPENAI_API_KEY
+
+# Global model settings
+Settings.embed_model = OpenAIEmbedding(model='text-embedding-3-small')
 
 
 async def get_query_engine(query: ChatbotQueryRequest,
@@ -33,9 +32,10 @@ async def get_query_engine(query: ChatbotQueryRequest,
             'title': doc.title,
         }) for doc in docs
     ]
-    llm = Gemini(model=f'models/{chatbot.llm}',
-                 temperature=chatbot.temperature)
-    index = VectorStoreIndex.from_documents(documents=documents)
+    llm = OpenAI(model=chatbot.llm,
+                 temperature=chatbot.temperature,
+                 system_prompt=chatbot.instruction)
+    index = VectorStoreIndex(documents, show_progress=True)
     query_engine = index.as_query_engine(llm=llm)
     try:
         yield query_engine

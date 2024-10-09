@@ -38,7 +38,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
                                        user: User,
                                        token: str,
                                        request: Optional[Request] = None):
-
         message = MessageSchema(subject='Forgot Password',
                                 recipients=[user.email],
                                 body=forgot_passwor_template.format(
