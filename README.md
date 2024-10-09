@@ -1,6 +1,6 @@
 # Chatsource
 
-This project provides APIs to create, manage, train, and query chatbots using OpenAI's LLMs and embeddings. It supports multiple users, each managing their own chatbots, with custom training and document-based queries.
+This project offers APIs for managing chatbots with Retrieval-Augmented Generation (RAG), using OpenAI’s LLMs and embeddings. Users can create, train, and query chatbots, with support for document-based training and multi-user management.
 
 ## Features
 
