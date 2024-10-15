@@ -32,8 +32,8 @@ class ChatbotCreateResponse(BaseResponseModel):
 
 
 class ChatbotQueryRequest(BaseRequestDBModel):
-    id: uuid.UUID
     content: str
+    chatbot_id: uuid.UUID
 
 
 class ChatbotTrainRequest(BaseRequestDBModel):

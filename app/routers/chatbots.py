@@ -16,7 +16,6 @@ chatbot_router = APIRouter(prefix='/chatbots', tags=['Chatbots'])
 @chatbot_router.get('/list', response_model=list[dict])
 async def get_chatbot_list(user: User = Depends(current_active_user),
                            session: AsyncSession = Depends(get_async_session)):
-    print('XD')
     chatbots_list = []
     chatbots = (await session.execute(
         select(Chatbot).join(UserChatbot).filter(
@@ -70,12 +69,29 @@ async def get_generated_content(
     return str(await query_engine.aquery(query.content))
 
 
-@chatbot_router.post('/train', status_code=status.HTTP_201_CREATED)
+@chatbot_router.post('/train',
+                     status_code=status.HTTP_201_CREATED,
+                     response_model=ChatbotTrainReponse)
 async def train_from_text(doc: ChatbotTrainRequest,
                           user: User = Depends(current_active_user),
                           session: AsyncSession = Depends(get_async_session)):
-    new_doc = Document(**doc.model_dump())
-    session.add(new_doc)
-    await session.commit()
-    await session.refresh(new_doc)
-    return ChatbotTrainReponse.model_validate(new_doc)
+    user_chatbot = (await session.execute(
+        select(UserChatbot).filter(
+            UserChatbot.user_id == user.id
+            and UserChatbot.chatbot_id == doc.chatbot_id))).scalars().first()
+    if user_chatbot:
+        if user_chatbot.role == UserRole.owner:
+            new_doc = Document(**doc.model_dump())
+            session.add(new_doc)
+            await session.commit()
+            await session.refresh(new_doc)
+            return ChatbotTrainReponse.model_validate(new_doc)
+        else:
+            raise NewHTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=
+                'The user does not have permission to train this chatbot.')
+    else:
+        raise NewHTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='The user does not have permission to train this chatbot.')
